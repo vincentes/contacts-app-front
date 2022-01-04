@@ -6,14 +6,16 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Home.vue'),
+    name: 'Login',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue'),
   },
   {
-    path: '/about',
-    name: 'About',
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    path: '/contacts',
+    name: 'Contacts',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Contacts.vue'),
   },
+  { path: '/contact/:id/', name: 'Contact', component: () => import('../views/Contact.vue') },
+  { path: '/contact/:id/edit', name: 'Contact.Edit', component: () => import('../views/ContactEdit.vue') },
 ];
 
 const router = new VueRouter({
