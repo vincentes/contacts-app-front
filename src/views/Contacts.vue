@@ -1,7 +1,10 @@
 <template>
   <div>
-    <h1 class="ml-4 text-4xl font-bold">Contacts</h1>
-    <div class="mx-5 mt-5 shadow-lg">
+    <h1 class="ml-4 text-4xl font-bold flex flex-row justify-between">
+      Contacts
+      <div class="font-light text-violetito mr-5" @click="create()">+</div>
+    </h1>
+    <div class="sticky top-5 mx-5 mt-5 shadow-lg">
       <BaseInput v-model="search" :placeholder="'Search'" :background="'bg-secondary'" :padding="'pl-3 py-3'">
         <template v-slot:rightIcon>
           <SearchIcon />
@@ -48,6 +51,9 @@ export default {
     }),
     navigate: function (id) {
       this.$router.push({ name: 'Contact', params: { id: id } });
+    },
+    create() {
+      this.$router.push({ name: 'Contact.Create' });
     },
   },
   computed: {

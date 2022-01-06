@@ -8,7 +8,7 @@
         <slot name="leftIcon"></slot>
       </div>
       <!--Input and validation -->
-      <ValidationProvider :rules="required ? 'required' : ''" v-slot="{ errors }">
+      <ValidationProvider :rules="rules" v-slot="{ errors }">
         <input
           :type="type"
           class="input caret-violetito mb-2 border-cute border-2"
@@ -17,6 +17,7 @@
             background,
             padding,
             margin,
+            textStyle,
           ]"
           :value="value"
           :placeholder="placeholder"
@@ -58,6 +59,8 @@ export default {
     padding: { type: String },
     margin: { type: String },
     required: { type: Boolean, default: false },
+    textStyle: { type: String, required: false, default: '' },
+    rules: { type: String, default: '' },
   },
   computed: {
     hasLeftIcon() {
@@ -71,6 +74,7 @@ export default {
   methods: {
     onInput(event) {
       this.$emit('input', event.target.value);
+      this.$emit('keydown', event.target.value);
     },
   },
   setup(props) {

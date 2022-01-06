@@ -4,64 +4,63 @@
       <div>
         <BackBar @backPress="back()" class="mb-5" :text="'Cancel'" />
       </div>
-      <ContactOverview :contact="contact" />
       <h2 class="mt-4 font-bold text-xl">Name</h2>
       <BaseInput
-        :placeholder="contact.name"
+        :placeholder="'Name'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
-        :required="false"
+        :rules="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.name"
+        v-model="contact.name"
       />
       <h2 class="mt-4 font-bold text-xl">Title</h2>
       <BaseInput
-        :placeholder="contact.title"
+        :placeholder="'Title'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
-        :required="false"
+        :rules="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.title"
+        v-model="contact.title"
       />
       <h2 class="mt-4 font-bold text-xl">Profile Picture</h2>
       <BaseInput
-        :placeholder="contact.pic"
+        :placeholder="'Upload file'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
         :rules="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.pic"
+        v-model="contact.pic"
       />
       <h2 class="mt-4 font-bold text-xl">Address</h2>
       <BaseTextArea
-        :placeholder="contact.address"
+        :placeholder="'Address'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
         :rules="'required'"
-        v-model="edited.address"
+        v-model="contact.address"
       />
       <h2 class="mt-4 font-bold text-xl">Phone</h2>
       <BaseInput
-        :placeholder="contact.phone"
+        :placeholder="'Phone'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
         :rules="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.phone"
+        v-model="contact.phone"
       />
       <h2 class="mt-4 font-bold text-xl">Email</h2>
       <BaseInput
-        :placeholder="contact.email"
+        :placeholder="'Email'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
         :required="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.email"
+        v-model="contact.email"
       />
     </div>
     <div class="mt-10 flex flex-row justify-center w-full">
-      <div class="w-9/12" @click="save()">
-        <BaseButton class="select-none" :text="'Save'" />
+      <div class="w-9/12" @click="create()">
+        <BaseButton class="select-none" :text="'Create'" />
       </div>
     </div>
   </div>
@@ -73,61 +72,49 @@ import BackBar from '@/components/shared/BackBar';
 import BaseInput from '@/components/shared/BaseInput';
 import BaseButton from '@/components/shared/BaseButton';
 import BaseTextArea from '@/components/shared/BaseTextArea';
-import ContactOverview from '@/components/shared/ContactOverview';
 import instance from '@/api/index';
 
 export default {
-  name: 'ContactEdit',
+  name: 'ContactCreate',
   components: {
     BackBar,
     BaseInput,
-    ContactOverview,
     BaseButton,
     BaseTextArea,
   },
   data() {
     return {
-      contact: {},
+      contact: {
+        name: 'Addddd',
+        address: 'Shakespeare',
+      },
       edited: {},
     };
   },
   methods: {
     ...mapMutations({
-      setToken: 'GET_TOKEN',
-      setContact: 'SET_CONTACT',
+      addContact: 'ADD_CONTACT',
     }),
     ...mapGetters({
       getToken: 'auth/token',
-      getContacts: 'contacts',
     }),
     back: function () {
-      this.$router.replace({ name: 'Contact', params: { id: this.contact.id } });
+      this.$router.replace({ name: 'Contacts' });
     },
-    save: function () {
-      console.log('SAVE');
-
+    create() {
+      console.log('CREATING');
       instance({
-        method: 'put',
-        url: `/api/contact/` + this.contact.id,
-        data: this.edited,
+        method: 'post',
+        url: '/api/contact/',
         headers: {
           Authorization: 'Bearer ' + this.getToken(),
         },
-      }).then(response => {
-        this.setContact(response.data.updated[0]);
-        console.log(this.getContacts());
-        this.back();
+        data: this.contact,
+      }).then(({ response }) => {
+        console.log(response.data);
+        this.setContact(response.data.contact[0]);
       });
     },
-  },
-  created() {
-    this.contact = this.getContacts().find(c => c.id == this.$route.params.id);
-    this.edited = { ...this.contact };
-    // Remove messages, we don't need them. It'll only mess with our PUT method.
-    this.edited.messages = undefined;
-    this.edited.created_at = undefined;
-    this.edited.updated_at = undefined;
-    this.edited.user_id = undefined;
   },
 };
 </script>

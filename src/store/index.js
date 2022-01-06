@@ -17,6 +17,10 @@ export default new Vuex.Store({
     SET_CONTACTS(state, value) {
       state.contacts = value;
     },
+    SET_CONTACT(state, value) {
+      const index = state.contacts.findIndex(c => c.id === value.id);
+      state.contacts[index] = value;
+    },
   },
   getters: {
     contacts(state) {
