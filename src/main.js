@@ -6,7 +6,7 @@ import store from './store';
 import './assets/css/app.css';
 import Spinner from './components/shared/Spinner.vue';
 import { ValidationProvider, extend } from 'vee-validate';
-import { required } from 'vee-validate/dist/rules';
+import { required, email } from 'vee-validate/dist/rules';
 import VueSimpleAlert from 'vue-simple-alert';
 
 /** VUE GLOBAL COMPONENTS */
@@ -19,6 +19,8 @@ extend('required', {
   ...required,
   message: 'This field is required.',
 });
+
+extend('email', { ...email, message: 'This email is invalid.' });
 
 new Vue({
   router,

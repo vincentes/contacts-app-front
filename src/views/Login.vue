@@ -9,8 +9,9 @@
           :placeholder="'Username'"
           :background="'bg-cute'"
           :padding="'pl-3 py-3'"
-          :required="true"
+          :rules="'required'"
           v-model="auth.email"
+          @keydown="resetLoginError()"
         />
         <div class="text-xl font-bold mt-10">Password</div>
         <BaseInput
@@ -18,9 +19,12 @@
           :background="'bg-cute'"
           :type="'password'"
           :padding="'pl-3 py-3'"
-          :required="true"
+          :rules="'required'"
           v-model="auth.password"
+          @keydown="resetLoginError()"
         />
+        <span class="text-red-500 mt-5">{{ loginError }}</span>
+
         <button type="submit" :disabled="processing" class="w-full">
           <BaseButton
             class="mt-10 select-none"
@@ -52,6 +56,7 @@ export default {
         email: '',
         password: '',
       },
+      loginError: '',
       processing: false,
     };
   },
@@ -73,34 +78,31 @@ export default {
 
       console.log('async logging in');
       this.processing = true;
-      await instance.get('/sanctum/csrf-cookie');
-      await instance
-        .post('api/signin', this.auth)
-        .then(({ data }) => {
-          this.$store.commit('auth/SET_TOKEN', data.token);
-          this.$fire({
-            title: 'Login success',
-            text: 'You have been logged in. Welcome back.',
-            type: 'success',
-            confirmButtonColor: '#9378FF',
-            timer: 1500,
-          }).then(() => {
-            console.log(this);
-            this.info();
+      await instance.get('/sanctum/csrf-cookie', { withCredentials: true }).then(() => {
+        instance
+          .post('api/signin', this.auth)
+          .then(({ data }) => {
+            this.$store.commit('auth/SET_TOKEN', data.token);
+            this.$fire({
+              title: 'Login success',
+              text: 'You have been logged in. Welcome back.',
+              type: 'success',
+              confirmButtonColor: '#9378FF',
+              timer: 1500,
+            }).then(() => {
+              this.info();
+            });
+          })
+          .catch(({ response: { data } }) => {
+            this.loginError = data.message;
+          })
+          .finally(() => {
+            this.processing = false;
           });
-        })
-        .catch(({ response: { data } }) => {
-          this.$fire({
-            title: 'Login failure',
-            text: data.message,
-            type: 'error',
-            // TODO: Make this a dynamic reference
-            confirmButtonColor: '#9378FF',
-          });
-        })
-        .finally(() => {
-          this.processing = false;
-        });
+      });
+    },
+    resetLoginError() {
+      this.loginError = '';
     },
   },
 };

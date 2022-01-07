@@ -4,24 +4,23 @@
       <div>
         <BackBar @backPress="back()" class="mb-5" :text="'Cancel'" />
       </div>
-      <ContactOverview :contact="contact" />
       <h2 class="mt-4 font-bold text-xl">Name</h2>
       <BaseInput
-        :placeholder="contact.name"
+        :placeholder="'Name'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
-        :required="false"
+        :rules="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.name"
+        v-model="contact.name"
       />
       <h2 class="mt-4 font-bold text-xl">Title</h2>
       <BaseInput
-        :placeholder="contact.title"
+        :placeholder="'Title'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
-        :required="false"
+        :rules="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.title"
+        v-model="contact.title"
       />
       <h2 class="mt-4 font-bold text-xl">Profile Picture</h2>
       <div
@@ -42,34 +41,34 @@
       </div>
       <h2 class="mt-4 font-bold text-xl">Address</h2>
       <BaseTextArea
-        :placeholder="contact.address"
+        :placeholder="'Address'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
         :rules="'required'"
-        v-model="edited.address"
+        v-model="contact.address"
       />
       <h2 class="mt-4 font-bold text-xl">Phone</h2>
       <BaseInput
-        :placeholder="contact.phone"
+        :placeholder="'Phone'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
         :rules="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.phone"
+        v-model="contact.phone"
       />
       <h2 class="mt-4 font-bold text-xl">Email</h2>
       <BaseInput
-        :placeholder="contact.email"
+        :placeholder="'Email'"
         :background="'bg-cute'"
         :padding="'pl-3 py-3'"
         :required="'required'"
         :textStyle="'text-violetito'"
-        v-model="edited.email"
+        v-model="contact.email"
       />
     </div>
     <div class="mt-10 flex flex-row justify-center w-full">
-      <div class="w-9/12" @click="save()">
-        <BaseButton class="select-none" :text="'Save'" />
+      <div class="w-9/12" @click="create()">
+        <BaseButton class="select-none" :text="'Create'" />
       </div>
     </div>
   </div>
@@ -81,16 +80,15 @@ import BackBar from '@/components/shared/BackBar';
 import BaseInput from '@/components/shared/BaseInput';
 import BaseButton from '@/components/shared/BaseButton';
 import BaseTextArea from '@/components/shared/BaseTextArea';
-import ContactOverview from '@/components/shared/ContactOverview';
-import instance from '@/api/index';
 import UploadIcon from '@/components/shared/icon/UploadIcon';
 
+import instance from '@/api/index';
+
 export default {
-  name: 'ContactEdit',
+  name: 'ContactCreate',
   components: {
     BackBar,
     BaseInput,
-    ContactOverview,
     BaseButton,
     BaseTextArea,
     UploadIcon,
@@ -98,58 +96,51 @@ export default {
   data() {
     return {
       contact: {},
-      edited: {},
       inputFileInfo: 'Upload a file',
     };
   },
   methods: {
     ...mapMutations({
-      setToken: 'GET_TOKEN',
-      setContact: 'SET_CONTACT',
+      addContact: 'ADD_CONTACT',
     }),
     ...mapGetters({
       getToken: 'auth/token',
-      getContacts: 'contacts',
+      getUser: 'auth/user',
     }),
     back: function () {
-      this.$router.replace({ name: 'Contact', params: { id: this.contact.id } });
+      this.$router.replace({ name: 'Contacts' });
+    },
+    goToContact: function (id) {
+      this.$router.replace({ name: 'Contact', params: { id: id } });
+    },
+    setFile() {
+      this.contact.pic = this.$refs.selectedFiles.files[0];
+      this.inputFileInfo = this.contact.pic.name;
     },
     fileSelector() {
       this.$refs.selectedFiles.click();
     },
-    setFile() {
-      this.edited.pic = this.$refs.selectedFiles.files[0];
-      this.inputFileInfo = this.edited.pic.name;
-    },
-    save: function () {
+    create() {
+      this.contact['user_id'] = this.getUser().id;
+
       let formData = new FormData();
-      for (var key in this.edited) {
-        formData.append(key, this.edited[key]);
+      for (var key in this.contact) {
+        formData.append(key, this.contact[key]);
       }
 
       instance({
         method: 'post',
-        url: `/api/contact/` + this.contact.id,
+        url: '/api/contact/',
         data: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer ' + this.getToken(),
         },
       }).then(response => {
-        this.setContact(response.data.updated[0]);
-        this.back();
+        this.addContact(response.data.contact);
+        this.goToContact(response.data.contact.id);
       });
     },
-  },
-  created() {
-    this.contact = this.getContacts().find(c => c.id == this.$route.params.id);
-    this.edited = { ...this.contact };
-    // Remove messages, we don't need them. It'll only mess with our POST method.
-    delete this.edited.messages;
-    delete this.edited.created_at;
-    delete this.edited.updated_at;
-    delete this.edited.user_id;
-    delete this.edited.pic;
   },
 };
 </script>

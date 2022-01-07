@@ -1,7 +1,7 @@
 <template>
   <div class="h-fit flex flex-col justify-between px-4">
     <div>
-      <BackBar @backWasClicked="back()">
+      <BackBar @backPress="back()">
         <template v-slot:action>
           <div @click="trash()">
             <TrashIcon />
@@ -60,7 +60,7 @@ export default {
       this.$router.push({ name: 'Contact', params: { id: id } });
     },
     back: function () {
-      this.$router.back();
+      this.$router.replace({ name: 'Contacts' });
     },
     doDelete: function () {
       instance
@@ -98,6 +98,8 @@ export default {
     },
   },
   created() {
+    console.log('CREATING');
+    console.log(this.getContacts());
     this.contact = this.getContacts().find(c => c.id == this.$route.params.id);
     this.contact.address = this.contact.address.replace(/\\n/g, '<br />');
   },

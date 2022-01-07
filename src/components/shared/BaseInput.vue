@@ -8,19 +8,25 @@
         <slot name="leftIcon"></slot>
       </div>
       <!--Input and validation -->
-      <ValidationProvider :rules="required ? 'required' : ''" v-slot="{ errors }">
+      <ValidationProvider :rules="rules" v-slot="{ errors }">
         <input
+          ref="selectedFiles"
           :type="type"
           class="input caret-violetito mb-2 border-cute border-2"
           :class="[
-            { 'border-transparent': hasCuteBorder, 'pl-10': hasLeftIcon, 'pr-10': hasRightIcon },
+            {
+              'border-transparent': hasCuteBorder,
+              'pl-10': hasLeftIcon,
+              'pr-10': hasRightIcon,
+            },
             background,
             padding,
             margin,
+            textStyle,
           ]"
-          :value="value"
           :placeholder="placeholder"
           @input="onInput"
+          @change="onImage"
         />
         <span class="text-violetito">{{ errors[0] }}</span>
       </ValidationProvider>
@@ -58,6 +64,8 @@ export default {
     padding: { type: String },
     margin: { type: String },
     required: { type: Boolean, default: false },
+    textStyle: { type: String, required: false, default: '' },
+    rules: { type: String, default: '' },
   },
   computed: {
     hasLeftIcon() {
@@ -67,10 +75,19 @@ export default {
     hasRightIcon() {
       return this.$slots.rightIcon ? true : false;
     },
+    getSelectedFile() {
+      return this.$refs.selectedFiles.files;
+    },
   },
   methods: {
     onInput(event) {
       this.$emit('input', event.target.value);
+      this.$emit('keydown', event.target.value);
+    },
+    onImage(event) {
+      if (this.type === 'file') {
+        this.$emit('imageChange', event.target.value);
+      }
     },
   },
   setup(props) {

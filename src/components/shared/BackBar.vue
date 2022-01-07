@@ -21,6 +21,11 @@ export default {
   props: {
     text: { type: String, default: 'Back' },
   },
+  methods: {
+    back: function () {
+      this.$emit('backPress');
+    },
+  },
 };
 </script>
 

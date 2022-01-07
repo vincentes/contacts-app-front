@@ -3,12 +3,11 @@
     <button
       type="button"
       :disabled="disabled"
-      :class="[padding, `btn-${btnStyle}`]"
       class="btn text-white"
       @click.stop="onClick"
       @mousedown="onMousedown"
     >
-      <span class="uppercase" :class="textStyle">{{ text }}</span>
+      <span class="uppercase">{{ text }}</span>
     </button>
   </div>
 </template>
