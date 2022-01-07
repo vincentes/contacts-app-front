@@ -17,7 +17,7 @@
           :even="index % 2 == 0"
           :name="item.name"
           :pic="item.pic"
-          :message="item.messages[0].content"
+          :message="item.messages[0] ? item.messages[0].content : 'No messages found.'"
         />
       </div>
     </div>

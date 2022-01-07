@@ -23,14 +23,22 @@
         v-model="contact.title"
       />
       <h2 class="mt-4 font-bold text-xl">Profile Picture</h2>
-      <BaseInput
-        :placeholder="'Upload file'"
-        :background="'bg-cute'"
-        :padding="'pl-3 py-3'"
-        :rules="'required'"
-        :textStyle="'text-violetito'"
-        v-model="contact.pic"
-      />
+      <div
+        @click="fileSelector()"
+        class="flex flex-row justify-between caret-violetito mb-2 border-cute border-2 bg-cute pl-3 py-3 text-violetito"
+      >
+        <span class="text-ellipsis w-8/12 overflow-hidden truncate">{{ inputFileInfo }}</span>
+        <div class="mr-5">
+          <UploadIcon />
+        </div>
+        <input
+          ref="selectedFiles"
+          :type="'file'"
+          class="w-0 text-ellipsis overflow-hidden truncate hidden input caret-violetito mb-2 border-cute border-2 bg-cute pl-3 py-3 text-violetito"
+          :placeholder="'Upload an image'"
+          @change="setFile"
+        />
+      </div>
       <h2 class="mt-4 font-bold text-xl">Address</h2>
       <BaseTextArea
         :placeholder="'Address'"
@@ -72,6 +80,8 @@ import BackBar from '@/components/shared/BackBar';
 import BaseInput from '@/components/shared/BaseInput';
 import BaseButton from '@/components/shared/BaseButton';
 import BaseTextArea from '@/components/shared/BaseTextArea';
+import UploadIcon from '@/components/shared/icon/UploadIcon';
+
 import instance from '@/api/index';
 
 export default {
@@ -81,14 +91,12 @@ export default {
     BaseInput,
     BaseButton,
     BaseTextArea,
+    UploadIcon,
   },
   data() {
     return {
-      contact: {
-        name: 'Addddd',
-        address: 'Shakespeare',
-      },
-      edited: {},
+      contact: {},
+      inputFileInfo: 'Upload a file',
     };
   },
   methods: {
@@ -97,22 +105,40 @@ export default {
     }),
     ...mapGetters({
       getToken: 'auth/token',
+      getUser: 'auth/user',
     }),
     back: function () {
       this.$router.replace({ name: 'Contacts' });
     },
+    goToContact: function (id) {
+      this.$router.replace({ name: 'Contact', params: { id: id } });
+    },
+    setFile() {
+      this.contact.pic = this.$refs.selectedFiles.files[0];
+      this.inputFileInfo = this.contact.pic.name;
+    },
+    fileSelector() {
+      this.$refs.selectedFiles.click();
+    },
     create() {
-      console.log('CREATING');
+      this.contact['user_id'] = this.getUser().id;
+
+      let formData = new FormData();
+      for (var key in this.contact) {
+        formData.append(key, this.contact[key]);
+      }
+
       instance({
         method: 'post',
         url: '/api/contact/',
+        data: formData,
         headers: {
+          'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer ' + this.getToken(),
         },
-        data: this.contact,
-      }).then(({ response }) => {
-        console.log(response.data);
-        this.setContact(response.data.contact[0]);
+      }).then(response => {
+        this.addContact(response.data.contact);
+        this.goToContact(response.data.contact.id);
       });
     },
   },

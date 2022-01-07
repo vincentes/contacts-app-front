@@ -24,14 +24,22 @@
         v-model="edited.title"
       />
       <h2 class="mt-4 font-bold text-xl">Profile Picture</h2>
-      <BaseInput
-        :placeholder="contact.pic"
-        :background="'bg-cute'"
-        :padding="'pl-3 py-3'"
-        :rules="'required'"
-        :textStyle="'text-violetito'"
-        v-model="edited.pic"
-      />
+      <div
+        @click="fileSelector()"
+        class="flex flex-row justify-between caret-violetito mb-2 border-cute border-2 bg-cute pl-3 py-3 text-violetito"
+      >
+        <span class="text-ellipsis w-8/12 overflow-hidden truncate">{{ inputFileInfo }}</span>
+        <div class="mr-5">
+          <UploadIcon />
+        </div>
+        <input
+          ref="selectedFiles"
+          :type="'file'"
+          class="w-0 text-ellipsis overflow-hidden truncate hidden input caret-violetito mb-2 border-cute border-2 bg-cute pl-3 py-3 text-violetito"
+          :placeholder="'Upload an image'"
+          @change="setFile"
+        />
+      </div>
       <h2 class="mt-4 font-bold text-xl">Address</h2>
       <BaseTextArea
         :placeholder="contact.address"
@@ -75,6 +83,7 @@ import BaseButton from '@/components/shared/BaseButton';
 import BaseTextArea from '@/components/shared/BaseTextArea';
 import ContactOverview from '@/components/shared/ContactOverview';
 import instance from '@/api/index';
+import UploadIcon from '@/components/shared/icon/UploadIcon';
 
 export default {
   name: 'ContactEdit',
@@ -84,11 +93,13 @@ export default {
     ContactOverview,
     BaseButton,
     BaseTextArea,
+    UploadIcon,
   },
   data() {
     return {
       contact: {},
       edited: {},
+      inputFileInfo: 'Upload a file',
     };
   },
   methods: {
@@ -103,19 +114,29 @@ export default {
     back: function () {
       this.$router.replace({ name: 'Contact', params: { id: this.contact.id } });
     },
+    fileSelector() {
+      this.$refs.selectedFiles.click();
+    },
+    setFile() {
+      this.edited.pic = this.$refs.selectedFiles.files[0];
+      this.inputFileInfo = this.edited.pic.name;
+    },
     save: function () {
-      console.log('SAVE');
+      let formData = new FormData();
+      for (var key in this.edited) {
+        formData.append(key, this.edited[key]);
+      }
 
       instance({
-        method: 'put',
+        method: 'post',
         url: `/api/contact/` + this.contact.id,
-        data: this.edited,
+        data: formData,
         headers: {
+          'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer ' + this.getToken(),
         },
       }).then(response => {
         this.setContact(response.data.updated[0]);
-        console.log(this.getContacts());
         this.back();
       });
     },
@@ -123,11 +144,12 @@ export default {
   created() {
     this.contact = this.getContacts().find(c => c.id == this.$route.params.id);
     this.edited = { ...this.contact };
-    // Remove messages, we don't need them. It'll only mess with our PUT method.
-    this.edited.messages = undefined;
-    this.edited.created_at = undefined;
-    this.edited.updated_at = undefined;
-    this.edited.user_id = undefined;
+    // Remove messages, we don't need them. It'll only mess with our POST method.
+    delete this.edited.messages;
+    delete this.edited.created_at;
+    delete this.edited.updated_at;
+    delete this.edited.user_id;
+    delete this.edited.pic;
   },
 };
 </script>

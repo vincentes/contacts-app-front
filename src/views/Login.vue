@@ -78,27 +78,28 @@ export default {
 
       console.log('async logging in');
       this.processing = true;
-      await instance.get('/sanctum/csrf-cookie');
-      await instance
-        .post('api/signin', this.auth)
-        .then(({ data }) => {
-          this.$store.commit('auth/SET_TOKEN', data.token);
-          this.$fire({
-            title: 'Login success',
-            text: 'You have been logged in. Welcome back.',
-            type: 'success',
-            confirmButtonColor: '#9378FF',
-            timer: 1500,
-          }).then(() => {
-            this.info();
+      await instance.get('/sanctum/csrf-cookie', { withCredentials: true }).then(() => {
+        instance
+          .post('api/signin', this.auth)
+          .then(({ data }) => {
+            this.$store.commit('auth/SET_TOKEN', data.token);
+            this.$fire({
+              title: 'Login success',
+              text: 'You have been logged in. Welcome back.',
+              type: 'success',
+              confirmButtonColor: '#9378FF',
+              timer: 1500,
+            }).then(() => {
+              this.info();
+            });
+          })
+          .catch(({ response: { data } }) => {
+            this.loginError = data.message;
+          })
+          .finally(() => {
+            this.processing = false;
           });
-        })
-        .catch(({ response: { data } }) => {
-          this.loginError = data.message;
-        })
-        .finally(() => {
-          this.processing = false;
-        });
+      });
     },
     resetLoginError() {
       this.loginError = '';

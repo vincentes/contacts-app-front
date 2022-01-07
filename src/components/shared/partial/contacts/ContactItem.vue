@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row px-5 py-10" :class="!even ? 'bg-primary' : 'bg-secondary'">
-    <img :src="pic" class="rounded-full w-2/12" />
+    <img :src="'http://localhost:8000/storage/' + pic" class="rounded-full w-2/12" />
     <div class="ml-6 flex flex-col space-y-1 w-8/12 justify-center">
       <div class="text-2xl overflow-hidden truncate font-bold w-8/12">{{ name }}</div>
       <p class="text-ellipsis w-10/12 overflow-hidden truncate text-violetito">

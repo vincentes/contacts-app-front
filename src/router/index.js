@@ -14,7 +14,7 @@ const routes = [
     name: 'Contacts',
     component: () => import(/* webpackChunkName: "about" */ '../views/Contacts.vue'),
   },
-  // { path: '/contact/create', name: 'Contact.Create', component: () => import('../views/ContactCreate.vue') },
+  { path: '/contact/create', name: 'Contact.Create', component: () => import('../views/ContactCreate.vue') },
   { path: '/contact/:id/', name: 'Contact', component: () => import('../views/Contact.vue') },
   { path: '/contact/:id/edit', name: 'Contact.Edit', component: () => import('../views/ContactEdit.vue') },
 ];

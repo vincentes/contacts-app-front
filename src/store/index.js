@@ -21,6 +21,12 @@ export default new Vuex.Store({
       const index = state.contacts.findIndex(c => c.id === value.id);
       state.contacts[index] = value;
     },
+    ADD_CONTACT(state, value) {
+      if (!value.messages) {
+        value.messages = [];
+      }
+      state.contacts.push(value);
+    },
   },
   getters: {
     contacts(state) {
