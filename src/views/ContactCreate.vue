@@ -145,11 +145,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+<style scoped>
 .h-fit {
   height: calc(100vh - 4rem) !important;
 }

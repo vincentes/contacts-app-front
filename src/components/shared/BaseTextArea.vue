@@ -53,7 +53,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .textarea {
   min-height: 6rem;
   white-space: pre-wrap;

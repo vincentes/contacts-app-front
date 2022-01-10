@@ -4,13 +4,11 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 import './assets/css/app.css';
-import Spinner from './components/shared/Spinner.vue';
 import { ValidationProvider, extend } from 'vee-validate';
 import { required, email } from 'vee-validate/dist/rules';
 import VueSimpleAlert from 'vue-simple-alert';
 
 /** VUE GLOBAL COMPONENTS */
-Vue.component('Spinner', Spinner);
 
 Vue.config.productionTip = false;
 Vue.use(VueSimpleAlert);
